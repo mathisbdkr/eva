@@ -192,7 +192,7 @@ void DisplayNcurses::launch_ncurses(void)
     while (c != 'q') {
         _height = 0;
         c = 0;
-        for (int i = 0; i < display_order.size(); i++) {
+        for (size_t i = 0; i < display_order.size(); i++) {
             if (display_order.at(i) == CPU) {
                 display_cpu();
             }

@@ -14,7 +14,8 @@ SRC	=	src/main.cpp	\
 		src/module/SysInfoModule.cpp	\
 		src/module/CpuModule.cpp	\
 		src/ncurses/DisplayNcurses.cpp \
-		src/sfml/DisplaySfml.cpp
+		src/sfml/DisplaySfml.cpp	\
+		src/sfml/made_round_rect.cpp
 
 OBJ	=	$(SRC/.c=.o)
 
