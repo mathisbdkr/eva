@@ -17,8 +17,8 @@ private:
 
 public:
     FileOpenException() {};
-    ~FileOpenException() _NOEXCEPT {};
-    const char *what() const _NOEXCEPT {
+    ~FileOpenException() noexcept {};
+    const char *what() const noexcept {
         return ("File could not be opened.");
     }
 };
@@ -29,8 +29,8 @@ private:
 
 public:
     OSNotFoundException() {};
-    ~OSNotFoundException() _NOEXCEPT {}
-    const char *what() const _NOEXCEPT {
+    ~OSNotFoundException() noexcept {}
+    const char *what() const noexcept {
         return ("OS not found.");
     }
 };

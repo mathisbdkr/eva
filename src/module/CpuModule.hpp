@@ -29,8 +29,8 @@ class CpuModule{
         std::string getTotalCpu();
         void reformate_cpu();
         void parseCpuStats();
-        int parseNbrCore();
-        std::deque<std::string> openNbCore(int core);
+        std::string parseNbrCore();
+        std::string openNbCore();
         void PopCompute(std::deque<std::string> dq);
 
     protected:
@@ -44,6 +44,7 @@ class CpuModule{
         std::string _iowaitStr;
         std::string _irqStr;
         std::string _softirqStr;
+        int _nbCore;
         long long _user;
         long long _nice;
         long long _system;
@@ -52,6 +53,7 @@ class CpuModule{
         long long _irq;
         long long _softirq;
         long long _hundred;
+        std::deque<std::string> _dq;
 };
 
 #endif /* !CPUMODULE_HPP_ */

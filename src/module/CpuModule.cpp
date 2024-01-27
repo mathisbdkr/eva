@@ -107,12 +107,11 @@ std::string CpuModule::getTotalCpu()
     }
 }
 
-int CpuModule::parseNbrCore()
+std::string CpuModule::parseNbrCore()
 {
     std::ifstream fileStream("/proc/cpuinfo");
     std::string buffer;
     std::string coreStr;
-    int core;
 
     if (fileStream.is_open()) {
         while (std::getline(fileStream, buffer)) {
@@ -120,22 +119,25 @@ int CpuModule::parseNbrCore()
                 coreStr = buffer.substr(buffer.find(':') + 1, buffer.length() - (buffer.find(':') + 1));
             }
         }
-        core = atoi(coreStr.c_str());
-        core += 1;
+        _nbCore = atoi(coreStr.c_str());
+        _nbCore += 1;
         fileStream.close();
-        return core;
     }
-    return std::stoi("File could not be opened.");
+    try {
+        throw FileOpenException();
+    } catch (const FileOpenException& message) {
+        std::cerr << "Caught exception: " << message.what() << std::endl;
+        return message.what();
+    }
 }
 
-std::deque<std::string> CpuModule::openNbCore(int core)
+std::string CpuModule::openNbCore()
 {
     std::ifstream fileStream("/proc/stat");
     std::string buffer;
     std::string formated;
     std::string cpu;
     int x = 0;
-    std::deque<std::string> dq;
 
     if (fileStream.is_open()) {
         while (std::getline(fileStream, buffer)) {
@@ -143,16 +145,25 @@ std::deque<std::string> CpuModule::openNbCore(int core)
             cpu += std::to_string(x);
             if (buffer.find(cpu) != std::string::npos) {
                 buffer = buffer.substr(buffer.find(' ') + 1, buffer.length() - buffer.find(' '));
-                dq.push_back(buffer);
+                _dq.push_back(buffer);
                 x += 1;
-                if (x > core - 1)
-                    return dq;
+                if (x > _nbCore - 1)
+                    return "No Error";
             }
         }
-        fileStream.close();
-        return dq;
+        try {
+            throw FileOpenException();
+        } catch (const FileOpenException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
     }
-    return dq;
+    try {
+        throw FileOpenException();
+    } catch (const FileOpenException& message) {
+        std::cerr << "Caught exception: " << message.what() << std::endl;
+        return message.what();
+    }
 }
 
 void CpuModule::PopCompute(std::deque<std::string> dq)
