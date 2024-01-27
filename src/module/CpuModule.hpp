@@ -31,7 +31,7 @@ class CpuModule{
         void parseCpuStats();
         std::string parseNbrCore();
         std::string openNbCore();
-        void PopCompute(std::deque<std::string> dq);
+        void PopCompute();
 
     protected:
     private:

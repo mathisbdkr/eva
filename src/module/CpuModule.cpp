@@ -166,12 +166,12 @@ std::string CpuModule::openNbCore()
     }
 }
 
-void CpuModule::PopCompute(std::deque<std::string> dq)
+void CpuModule::PopCompute()
 {
     std::deque<long long> dqlong;
-    while (!dq.empty()) {
-        std::string buffer = dq.at(0);
-        dq.pop_front();
+    while (!_dq.empty()) {
+        std::string buffer = _dq.at(0);
+        _dq.pop_front();
         float res = TotalCPUpercent(buffer);
         std::cout << res << std::endl;
         dqlong.push_back(res);
