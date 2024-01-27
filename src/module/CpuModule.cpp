@@ -62,7 +62,7 @@ float CpuModule::TotalCPUpercent(std::string buf)
     long long totalOne = _user + _nice + _system + _idle + _iowait + _irq + _softirq;
     long long workOne = _user + _nice + _system;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     _buffer = getTotalCpu();
 
@@ -98,12 +98,13 @@ std::string CpuModule::getTotalCpu()
             std::cerr << "Caught exception: " << message.what() << std::endl;
             return message.what();
         }
-    }
-    try {
-        throw FileOpenException();
-    } catch (const FileOpenException& message) {
-        std::cerr << "Caught exception: " << message.what() << std::endl;
-        return message.what();
+    } else {
+        try {
+            throw FileOpenException();
+        } catch (const FileOpenException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
     }
 }
 
@@ -122,17 +123,20 @@ std::string CpuModule::parseNbrCore()
         _nbCore = atoi(coreStr.c_str());
         _nbCore += 1;
         fileStream.close();
+    } else {
+        try {
+           throw FileOpenException();
+        } catch (const FileOpenException& message) {
+           std::cerr << "Caught exception: " << message.what() << std::endl;
+           return message.what();
+        }
     }
-    try {
-        throw FileOpenException();
-    } catch (const FileOpenException& message) {
-        std::cerr << "Caught exception: " << message.what() << std::endl;
-        return message.what();
-    }
+    return "";
 }
 
 std::string CpuModule::openNbCore()
 {
+    parseNbrCore();
     std::ifstream fileStream("/proc/stat");
     std::string buffer;
     std::string formated;
@@ -157,23 +161,25 @@ std::string CpuModule::openNbCore()
             std::cerr << "Caught exception: " << message.what() << std::endl;
             return message.what();
         }
-    }
-    try {
-        throw FileOpenException();
-    } catch (const FileOpenException& message) {
-        std::cerr << "Caught exception: " << message.what() << std::endl;
-        return message.what();
+    } else {
+        try {
+            throw FileOpenException();
+        } catch (const FileOpenException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
     }
 }
 
-void CpuModule::PopCompute()
+std::deque<long long> CpuModule::PopCompute()
 {
+    openNbCore();
     std::deque<long long> dqlong;
     while (!_dq.empty()) {
         std::string buffer = _dq.at(0);
         _dq.pop_front();
         float res = TotalCPUpercent(buffer);
-        std::cout << res << std::endl;
         dqlong.push_back(res);
     }
+    return dqlong;
 }
