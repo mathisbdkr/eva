@@ -11,7 +11,6 @@
 
 DisplayNcurses::DisplayNcurses()
 {
-    _module._RamModule = new RamModule;
     launch_ncurses();
 }
 
@@ -121,13 +120,12 @@ void DisplayNcurses::display_cpu(void)
     attron(COLOR_PAIR(CYAN));
     printw("\nCurrent Cpu\n");
     attroff(COLOR_PAIR(CYAN));
-    display_percent(_module._CpuModule->TotalCPUpercent());
+    display_percent(_module._CpuModule->TotalCPUpercent(_module._CpuModule->getTotalCpu()));
     color_remove();
 }
 
 void DisplayNcurses::launch_ncurses(void)
 {
-    
     _module._RamModule = new RamModule;
     _module._SysInfoModule = new SysInfoModule;
     _module._CpuModule = new CpuModule;

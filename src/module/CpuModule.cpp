@@ -53,9 +53,9 @@ void CpuModule::parseCpuStats()
     _hundred = 100;
 }
 
-float CpuModule::TotalCPUpercent()
+float CpuModule::TotalCPUpercent(std::string buf)
 {
-    _buffer = getTotalCpu();
+    _buffer = buf;
     reformate_cpu();
     parseCpuStats();
 
@@ -95,4 +95,64 @@ std::string CpuModule::getTotalCpu()
         return "OS not found\n.";
      }
     return "File could not be opened.\n";
+}
+
+int CpuModule::parseNbrCore()
+{
+    std::ifstream fileStream("/proc/cpuinfo");
+    std::string buffer;
+    std::string coreStr;
+    int core;
+
+    if (fileStream.is_open()) {
+        while (std::getline(fileStream, buffer)) {
+            if (buffer.find("processor") != std::string::npos) {
+                coreStr = buffer.substr(buffer.find(':') + 1, buffer.length() - (buffer.find(':') + 1));
+            }
+        }
+        core = atoi(coreStr.c_str());
+        core += 1;
+        fileStream.close();
+        return core;
+    }
+    return std::stoi("File could not be opened.");
+}
+
+std::deque<std::string> CpuModule::openNbCore(int core)
+{
+    std::ifstream fileStream("/proc/stat");
+    std::string buffer;
+    std::string formated;
+    std::string cpu;
+    int x = 0;
+    std::deque<std::string> dq;
+
+    if (fileStream.is_open()) {
+        while (std::getline(fileStream, buffer)) {
+            cpu = "cpu";
+            cpu += std::to_string(x);
+            if (buffer.find(cpu) != std::string::npos) {
+                buffer = buffer.substr(buffer.find(' ') + 1, buffer.length() - buffer.find(' '));
+                dq.push_back(buffer);
+                x += 1;
+                if (x > core - 1)
+                    return dq;
+            }
+        }
+        fileStream.close();
+        return dq;
+    }
+    return dq;
+}
+
+void CpuModule::PopCompute(std::deque<std::string> dq)
+{
+    std::deque<long long> dqlong;
+    while (!dq.empty()) {
+        std::string buffer = dq.at(0);
+        dq.pop_front();
+        float res = TotalCPUpercent(buffer);
+        std::cout << res << std::endl;
+        dqlong.push_back(res);
+    }
 }

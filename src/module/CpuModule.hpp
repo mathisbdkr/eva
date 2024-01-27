@@ -17,16 +17,20 @@
 #include <chrono>
 #include <thread>
 #include <cmath>
+#include <deque>
 
 class CpuModule{
     public:
         CpuModule();
         ~CpuModule();
         std::string getCpu();
-        float TotalCPUpercent();
+        float TotalCPUpercent(std::string buf);
         std::string getTotalCpu();
         void reformate_cpu();
         void parseCpuStats();
+        int parseNbrCore();
+        std::deque<std::string> openNbCore(int core);
+        void PopCompute(std::deque<std::string> dq);
 
     protected:
     private:
