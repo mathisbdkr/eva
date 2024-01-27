@@ -8,6 +8,7 @@
 #include "IDisplay.hpp"
 #include "IModule.hpp"
 #include "ncurses/DisplayNcurses.hpp"
+#include "sfml/DisplaySfml.hpp"
 #include <chrono>
 #include <thread>
 
@@ -41,7 +42,7 @@ int main(int ac, char **av)
         return 0;
     }
     if (is_graphical(av[1]) == true) {
-        std::cout << "graphical\n";
+        DisplaySfml disp_sfml;
     } else if (is_text(av[1]) == true) {
         DisplayNcurses disp_ncurses;
     } else {
