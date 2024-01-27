@@ -20,7 +20,7 @@ class RamModule {
         float _ram_usage;
         float _total_ram;
         float _free_ram;
-        
+
     private:
 };
 

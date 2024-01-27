@@ -11,6 +11,7 @@
 
 DisplayNcurses::DisplayNcurses()
 {
+    //_module._CpuModule->PopCompute(_module._CpuModule->openNbCore(_module._CpuModule->parseNbrCore()));
     launch_ncurses();
 }
 
@@ -32,74 +33,87 @@ void DisplayNcurses::init_ncurse_window(void)
     init_pair(CYAN, COLOR_CYAN, COLOR_BLACK);
 }
 
-void DisplayNcurses::get_terminal_size() {
-    getmaxyx(stdscr, _size_x, _size_y);
-}
-
-void DisplayNcurses::percent_color(int nb, int max)
+void DisplayNcurses::percent_color(int nb, int max, WINDOW *win)
 {
     if (nb <= (max / 3)) {
-        attron(COLOR_PAIR(GREEN));
+        wattron(win,COLOR_PAIR(GREEN));
     }
     if (nb >(max / 3) && nb <= (max / 3) * 2) {
-        attron(COLOR_PAIR(YELLOW));
+        wattron(win,COLOR_PAIR(YELLOW));
     }
     if (nb > (max / 3) * 2) {
-        attron(COLOR_PAIR(RED));
+        wattron(win,COLOR_PAIR(RED));
     }
 }
 
-void DisplayNcurses::color_remove() {
-    attroff(COLOR_PAIR(RED));
-    attroff(COLOR_PAIR(GREEN));
-    attroff(COLOR_PAIR(YELLOW));
-    attron(COLOR_PAIR(RIEN));
+void DisplayNcurses::color_remove(WINDOW *win) {
+    wattroff(win,COLOR_PAIR(RED));
+    wattroff(win,COLOR_PAIR(GREEN));
+    wattroff(win,COLOR_PAIR(YELLOW));
+    wattroff(win,COLOR_PAIR(CYAN));
+    wattron(win,COLOR_PAIR(RIEN));
 }
 
-void DisplayNcurses::display_percent(float percent)
+void DisplayNcurses::display_percent(float percent, WINDOW *win, int pos_y, int pos_x)
 {
-    percent /= 2;
-    int max = 50;
+    percent /= 1.5;
+    int max = 66;
     for (int i = 0; i < max; i++) {
-        percent_color(i, max);
+        percent_color(i, max, win);
         if (i < percent)
-            printw("|");
+            mvwprintw(win, pos_y, pos_x++, "|");
         if (i >= percent)
-            printw(".");
+            mvwprintw(win, pos_y, pos_x++, ".");
         if (i == 2) {
-            percent_color(percent, max);
-            printw("%.2f%%", percent * 2);
+            percent_color(percent, max, win);
+            mvwprintw(win, pos_y, pos_x++, "%.2f%%", percent * 1.5);
             i += 6;
+            pos_x += 5;
         }
     }
-    color_remove();
+    color_remove(win);
 }
 
 void DisplayNcurses::display_ram(void)
 {
+    WINDOW *win = newwin(6, 75, _height, 0);
+    _height += 6;
+    int y = 0;
     _module._RamModule->get_ram_usage();
-    attron(COLOR_PAIR(CYAN));
-    printw("\nCurrent ram\n");
-    attroff(COLOR_PAIR(CYAN));
-    display_percent(_module._RamModule->_ram_usage);
-    color_remove();
+    refresh();
+    box(win, 0, 0);
+    wattron(win,COLOR_PAIR(CYAN));
+    mvwprintw(win, y++, 1, " Current ram ");
+    y++;
+    wattroff(win,COLOR_PAIR(CYAN));
+    display_percent(_module._RamModule->_ram_usage, win, y, 1);
+    y++;
+    y++;
     float ram_used = _module._RamModule->_total_ram - _module._RamModule->_free_ram;
-    printw("\nram usage : ");
-    percent_color(_module._RamModule->_ram_usage, 100);
-    printw("%.0f", ram_used);
-    color_remove();
-    printw(" / %.0fKB, %.0fKB free.\n", _module._RamModule->_total_ram, _module._RamModule->_free_ram);
+    mvwprintw(win, y, 1, "Ram usage : ");
+    percent_color(_module._RamModule->_ram_usage, 100, win);
+    mvwprintw(win, y, 13, "%.0f", ram_used);
+    color_remove(win);
+    mvwprintw(win, y, 23, " / %.0fKB, %.0fKB free.", _module._RamModule->_total_ram, _module._RamModule->_free_ram);
+    wrefresh(win);
+    delwin(win);
 }
 
 void DisplayNcurses::display_sys()
 {
-    attron(COLOR_PAIR(CYAN));
-    printw("\nSystem Information\n");
-    attroff(COLOR_PAIR(CYAN));
-    printw("User \t: %s\n", _module._SysInfoModule->GetUser().c_str());
-    printw("Cpu \t%s\n", _module._SysInfoModule->getCpu().c_str());
-    printw("OS \t: %s\n", _module._SysInfoModule->OsInfo().c_str());
-    printw("Kernel \t: %s\n", _module._SysInfoModule->GetKernem().c_str());
+    WINDOW *win = newwin(8, 75, _height, 0);
+    _height += 8;
+    int y = 0;
+    refresh();
+    box(win, 0, 0);
+    wattron(win, COLOR_PAIR(CYAN));
+    mvwprintw(win, y++, 1, " System Information ");
+    y++;
+    wattroff(win, COLOR_PAIR(CYAN));
+    mvwprintw(win, y++, 1, "User \t: %s", _module._SysInfoModule->GetUser().c_str());
+    mvwprintw(win, y++, 1, "Cpu \t%s", _module._SysInfoModule->getCpu().c_str());
+    mvwprintw(win, y++, 1, "OS \t: %s", _module._SysInfoModule->OsInfo().c_str());
+    mvwprintw(win, y++, 1, "Kernel : %s", _module._SysInfoModule->GetKernem().c_str());
 
     long int all_second = _module._SysInfoModule->GetUpTime();
     int hours = all_second / 3600;
@@ -112,32 +126,63 @@ void DisplayNcurses::display_sys()
     for (int i = 0; i < minuts; i++) {
         second -= 60;
     }
-    printw("Uptime \t: %d:%d:%d\n", hours, minuts, second);
+    mvwprintw(win, y++, 1, "Uptime : %d:%d:%d", hours, minuts, second);
+    wrefresh(win);
+    delwin(win);
 }
 
 void DisplayNcurses::display_cpu(void)
 {
-    attron(COLOR_PAIR(CYAN));
-    printw("\nCurrent Cpu\n");
-    attroff(COLOR_PAIR(CYAN));
-    display_percent(_module._CpuModule->TotalCPUpercent(_module._CpuModule->getTotalCpu()));
-    color_remove();
+    int dq_size = _module._CpuModule->PopCompute().size();
+    WINDOW *win = newwin(6 + (dq_size / 2) + 3 , 150, _height, 0);
+    _height += 6 + (dq_size / 2) + 3;
+    int y = 0;
+    refresh();
+    box(win, 0, 0);
+    wattron(win,COLOR_PAIR(CYAN));
+    mvwprintw(win, y++, 1, " Current Cpu ");
+    wattroff(win,COLOR_PAIR(CYAN));
+    y++;
+    mvwprintw(win, y++, 1, "Cpu \t%s", _module._SysInfoModule->getCpu().c_str());
+    y++;
+    display_percent(_module._CpuModule->TotalCPUpercent(_module._CpuModule->getTotalCpu()), win, y, 1);
+    y++;
+    y++;
+
+    std::deque<float> dq = _module._CpuModule->PopCompute();
+    mvwprintw(win, y++, 1, "Cpu core usage");
+    for (int i = 0; i < dq_size / 2; i++) {
+        mvwprintw(win, y, 1, "%d [", i);
+        display_percent(dq.at(i), win, y, 5);
+        mvwprintw(win, y, 72, "]  %d [", i + dq_size / 2);
+        display_percent(dq.at(i + dq_size / 2), win, y, 80);
+        mvwprintw(win, y, 147, "]");
+        y++;
+    }
+
+    wrefresh(win);
+    delwin(win);
 }
 
 void DisplayNcurses::launch_ncurses(void)
 {
+    
     _module._RamModule = new RamModule;
     _module._SysInfoModule = new SysInfoModule;
     _module._CpuModule = new CpuModule;
 
     init_ncurse_window();
-    while (1) {
-        clear();
-
+    int c = 0;
+    cbreak();
+    while (c != 'q') {
+        _height = 0;
         display_sys();
-        display_ram();
         display_cpu();
-        refresh();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        display_ram();
+        timeout(50);
+        c = getch();
     }
+    delete(_module._CpuModule);
+    delete(_module._RamModule);
+    delete(_module._SysInfoModule);
 }

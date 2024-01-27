@@ -171,10 +171,10 @@ std::string CpuModule::openNbCore()
     }
 }
 
-std::deque<long long> CpuModule::PopCompute()
+std::deque<float> CpuModule::PopCompute()
 {
     openNbCore();
-    std::deque<long long> dqlong;
+    std::deque<float> dqlong;
     while (!_dq.empty()) {
         std::string buffer = _dq.at(0);
         _dq.pop_front();

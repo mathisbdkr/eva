@@ -15,21 +15,21 @@
 class DisplayNcurses : public Krell::IDisplay {
     private:
         Krell::IModule _module;
-        int _size_x;
-        int _size_y;
-        WINDOW *_win;
+        std::deque<std::string> _dq;
+        std::size_t _dq_size;
+        int _height;
     public:
         DisplayNcurses();
         ~DisplayNcurses();
         void init_ncurse_window();
         void display_ram();
         void launch_ncurses();
-        void get_terminal_size();
-        void percent_color(int nb, int max);
-        void color_remove();
-        void display_percent(float percent);
+        void percent_color(int nb, int max, WINDOW *win);
+        void color_remove(WINDOW *win);
+        void display_percent(float percent, WINDOW *win, int pos_y, int pos_x);
         void display_sys();
         void display_cpu(void);
+        int get_height();
 };
 
 enum {
