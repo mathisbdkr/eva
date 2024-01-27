@@ -118,7 +118,11 @@ void DisplayNcurses::display_sys()
 
 void DisplayNcurses::display_cpu(void)
 {
-    _module._CpuModule.;
+    attron(COLOR_PAIR(CYAN));
+    printw("\nCurrent Cpu\n");
+    attroff(COLOR_PAIR(CYAN));
+    display_percent(_module._CpuModule->TotalCPUpercent());
+    color_remove();
 }
 
 void DisplayNcurses::launch_ncurses(void)

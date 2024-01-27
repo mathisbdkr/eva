@@ -23,7 +23,7 @@ class CpuModule{
         CpuModule();
         ~CpuModule();
         std::string getCpu();
-        long long TotalCPUpercent();
+        float TotalCPUpercent();
         std::string getTotalCpu();
         void reformate_cpu();
         void parseCpuStats();

@@ -44,18 +44,18 @@ void CpuModule::reformate_cpu()
 void CpuModule::parseCpuStats()
 {
     _user = std::stoll(_userStr, 0);
-    // _nice = std::stoll(_niceStr, 0);
-    // _system = std::stoll(_systemStr, 0);
-    // _idle = std::stoll(_idleStr, 0);
-    // _iowait = std::stoll(_iowaitStr, 0);
-    // _irq = std::stoll(_irqStr, 0);
-    // _softirq = std::stoll(_softirqStr, 0);
-    // _hundred = 100;
+    _nice = std::stoll(_niceStr, 0);
+    _system = std::stoll(_systemStr, 0);
+    _idle = std::stoll(_idleStr, 0);
+    _iowait = std::stoll(_iowaitStr, 0);
+    _irq = std::stoll(_irqStr, 0);
+    _softirq = std::stoll(_softirqStr, 0);
+    _hundred = 100;
 }
 
-long long CpuModule::TotalCPUpercent()
+float CpuModule::TotalCPUpercent()
 {
-    std::string _buffer = getTotalCpu();
+    _buffer = getTotalCpu();
     reformate_cpu();
     parseCpuStats();
 
@@ -76,14 +76,13 @@ long long CpuModule::TotalCPUpercent()
     double totalPeriod = totalTwo - totalOne;
     double totalWork = workTwo - workOne;
 
-    double res = (totalWork / totalPeriod) * 100;
+    float res = (totalWork / totalPeriod) * 100;
     return res;
 }
 
 std::string CpuModule::getTotalCpu()
 {
     std::ifstream fileStream("/proc/stat");
-    std::string _buffer;
 
     if (fileStream.is_open()) {
         while (std::getline(fileStream, _buffer)) {
