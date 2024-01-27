@@ -13,7 +13,8 @@ SRC	=	src/main.cpp	\
 		src/module/RamModule.cpp	\
 		src/module/SysInfoModule.cpp	\
 		src/module/CpuModule.cpp	\
-		src/ncurses/DisplayNcurses.cpp
+		src/ncurses/DisplayNcurses.cpp \
+		src/sfml/DisplaySfml.cpp
 
 OBJ	=	$(SRC/.c=.o)
 
