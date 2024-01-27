@@ -16,6 +16,9 @@
 #include <cstring>
 #include <iostream>
 #include <sys/sysinfo.h>
+#include <limits.h>
+#include <chrono>
+#include <ctime>
 
 class SysInfoModule {
     public:
@@ -26,6 +29,8 @@ class SysInfoModule {
         std::string GetKernem();
         std::string GetUser();
         long int GetUpTime();
+        std::string getHostname();
+        char* TimeDate();
     protected:
     private:
 };
