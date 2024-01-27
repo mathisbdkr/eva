@@ -92,9 +92,19 @@ std::string CpuModule::getTotalCpu()
             }
         }
         fileStream.close();
-        return "OS not found\n.";
-     }
-    return "File could not be opened.\n";
+        try {
+            throw OSNotFoundException();
+        } catch (const OSNotFoundException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
+    }
+    try {
+        throw FileOpenException();
+    } catch (const FileOpenException& message) {
+        std::cerr << "Caught exception: " << message.what() << std::endl;
+        return message.what();
+    }
 }
 
 int CpuModule::parseNbrCore()

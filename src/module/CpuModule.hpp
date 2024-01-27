@@ -18,6 +18,7 @@
 #include <thread>
 #include <cmath>
 #include <deque>
+#include "ErrorException.hpp"
 
 class CpuModule{
     public:

@@ -7,6 +7,7 @@
 
 #ifndef SYSINFOMODULE_HPP_
 #define SYSINFOMODULE_HPP_
+#include "ErrorException.hpp"
 
 #include <string>
 #include <unistd.h>

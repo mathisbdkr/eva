@@ -34,7 +34,12 @@ std::string SysInfoModule::GetKernem()
         fileStream.close();
         return kernel.substr(0, kernel.find("("));
     } else {
-        return "File could not be opened.\n";
+        try {
+            throw FileOpenException();
+        } catch (const FileOpenException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
     }
 }
 
@@ -51,9 +56,19 @@ std::string SysInfoModule::OsInfo()
             }
         }
         fileStream.close();
-        return "OS not found\n.";
+        try {
+            throw OSNotFoundException();
+        } catch (const OSNotFoundException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
     }
-    return "File could not be opened.\n";
+    try {
+        throw FileOpenException();
+    } catch (const FileOpenException& message) {
+        std::cerr << "Caught exception: " << message.what() << std::endl;
+        return message.what();
+    }
 }
 
 std::string SysInfoModule::getCpu()
@@ -69,9 +84,19 @@ std::string SysInfoModule::getCpu()
             }
         }
         fileStream.close();
-        return "OS not found\n.";
+        try {
+            throw OSNotFoundException();
+        } catch (const OSNotFoundException& message) {
+            std::cerr << "Caught exception: " << message.what() << std::endl;
+            return message.what();
+        }
     }
-    return "File could not be opened.\n";
+    try {
+        throw FileOpenException();
+    } catch (const FileOpenException& message) {
+        std::cerr << "Caught exception: " << message.what() << std::endl;
+        return message.what();
+    }
 }
 
 long int SysInfoModule::GetUpTime()
