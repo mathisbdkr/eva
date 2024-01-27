@@ -18,6 +18,11 @@ class DisplayNcurses : public Krell::IDisplay {
         std::deque<std::string> _dq;
         std::size_t _dq_size;
         int _height;
+        enum {
+            CPU,
+            RAM,
+            SYS
+        };
     public:
         DisplayNcurses();
         ~DisplayNcurses();

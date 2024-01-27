@@ -62,7 +62,7 @@ float CpuModule::TotalCPUpercent(std::string buf)
     long long totalOne = _user + _nice + _system + _idle + _iowait + _irq + _softirq;
     long long workOne = _user + _nice + _system;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::microseconds(10000));
 
     _buffer = getTotalCpu();
 

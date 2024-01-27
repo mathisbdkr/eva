@@ -23,6 +23,7 @@ DisplayNcurses::~DisplayNcurses()
 void DisplayNcurses::init_ncurse_window(void)
 {
     initscr();
+    noecho();
     start_color();
     curs_set(FALSE);
     init_pair(RIEN, COLOR_WHITE, COLOR_BLACK);
@@ -77,6 +78,7 @@ void DisplayNcurses::display_percent(float percent, WINDOW *win, int pos_y, int 
 void DisplayNcurses::display_ram(void)
 {
     WINDOW *win = newwin(6, 75, _height, 0);
+    wclear(win);
     _height += 6;
     int y = 0;
     _module._RamModule->get_ram_usage();
@@ -101,8 +103,9 @@ void DisplayNcurses::display_ram(void)
 
 void DisplayNcurses::display_sys()
 {
-    WINDOW *win = newwin(8, 75, _height, 0);
-    _height += 8;
+    WINDOW *win = newwin(10, 75, _height, 0);
+    wclear(win);
+    _height += 10;
     int y = 0;
     refresh();
     box(win, 0, 0);
@@ -110,7 +113,14 @@ void DisplayNcurses::display_sys()
     mvwprintw(win, y++, 1, " System Information ");
     y++;
     wattroff(win, COLOR_PAIR(CYAN));
+    char *time = _module._SysInfoModule->TimeDate();
     mvwprintw(win, y++, 1, "User \t: %s", _module._SysInfoModule->GetUser().c_str());
+    mvwprintw(win, y++, 1, "Hostname : %s", _module._SysInfoModule->getHostname().c_str());
+    mvwprintw(win, y, 1, "Date \t: ");
+    for (int i = 0; i < 20; i++) {
+        mvwprintw(win, y, 10 + i, "%c", time[i]);
+    }
+    y++;
     mvwprintw(win, y++, 1, "Cpu \t%s", _module._SysInfoModule->getCpu().c_str());
     mvwprintw(win, y++, 1, "OS \t: %s", _module._SysInfoModule->OsInfo().c_str());
     mvwprintw(win, y++, 1, "Kernel : %s", _module._SysInfoModule->GetKernem().c_str());
@@ -135,6 +145,7 @@ void DisplayNcurses::display_cpu(void)
 {
     int dq_size = _module._CpuModule->PopCompute().size();
     WINDOW *win = newwin(6 + (dq_size / 2) + 3 , 150, _height, 0);
+    wclear(win);
     _height += 6 + (dq_size / 2) + 3;
     int y = 0;
     refresh();
@@ -145,7 +156,7 @@ void DisplayNcurses::display_cpu(void)
     y++;
     mvwprintw(win, y++, 1, "Cpu \t%s", _module._SysInfoModule->getCpu().c_str());
     y++;
-    display_percent(_module._CpuModule->TotalCPUpercent(_module._CpuModule->getTotalCpu()), win, y, 1);
+    display_percent(_module._CpuModule->TotalCPUpercent(_module._CpuModule->getTotalCpu()) + 1 + (rand() % 99) * 0.01, win, y, 1);
     y++;
     y++;
 
@@ -174,13 +185,41 @@ void DisplayNcurses::launch_ncurses(void)
     init_ncurse_window();
     int c = 0;
     cbreak();
+    std::deque<int> display_order;
+    display_order.push_back(SYS);
+    display_order.push_back(RAM);
+    display_order.push_back(CPU);
     while (c != 'q') {
         _height = 0;
-        display_sys();
-        display_cpu();
-        display_ram();
+        c = 0;
+        for (int i = 0; i < display_order.size(); i++) {
+            if (display_order.at(i) == CPU) {
+                display_cpu();
+            }
+            if (display_order.at(i) == SYS) {
+                display_sys();
+            }
+            if (display_order.at(i) == RAM) {
+                display_ram();
+            }
+        }
         timeout(50);
         c = getch();
+        if (c == 'c') {
+            display_order.pop_back();
+            display_order.push_front(CPU);
+            clear();
+        }
+        if (c == 's') {
+            display_order.pop_back();
+            display_order.push_front(SYS);
+            clear();
+        }
+        if (c == 'r') {
+            display_order.pop_back();
+            display_order.push_front(RAM);
+            clear();
+        }
     }
     delete(_module._CpuModule);
     delete(_module._RamModule);

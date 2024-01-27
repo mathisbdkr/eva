@@ -24,20 +24,6 @@ std::string SysInfoModule::GetUser() {
     return User;
 }
 
-std::string SysInfoModule::getHostname()
-{
-    char Hostname[HOST_NAME_MAX];
-    gethostname(Hostname, HOST_NAME_MAX);
-    return Hostname;
-}
-
-char* SysInfoModule::TimeDate()
-{
-    std::time_t now = time(0);
-    char* dateTime = ctime(&now);
-    return dateTime;
-}
-
 std::string SysInfoModule::GetKernem()
 {
     std::ifstream fileStream("/proc/version");
@@ -118,4 +104,18 @@ long int SysInfoModule::GetUpTime()
     struct sysinfo i;
     sysinfo(&i);
     return i.uptime;
+}
+
+std::string SysInfoModule::getHostname()
+{
+    char Hostname[HOST_NAME_MAX];
+    gethostname(Hostname, HOST_NAME_MAX);
+    return Hostname;
+}
+
+char* SysInfoModule::TimeDate()
+{
+    std::time_t now = time(0);
+    char* dateTime = ctime(&now);
+    return dateTime;
 }
